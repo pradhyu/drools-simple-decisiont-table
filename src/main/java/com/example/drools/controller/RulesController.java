@@ -1,7 +1,6 @@
 package com.example.drools.controller;
 
 import com.example.drools.model.Audit;
-import com.example.drools.model.Person;
 import com.example.drools.service.RulesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
