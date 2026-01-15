@@ -24,8 +24,8 @@
 [INFO]  T E S T S
 [INFO] -------------------------------------------------------
 [INFO] Running com.example.drools.DroolsApplicationTests
-00:17:52.395 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.example.drools.DroolsApplicationTests]: DroolsApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-00:17:52.552 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.example.drools.DroolsApplication for test class com.example.drools.DroolsApplicationTests
+00:20:59.489 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.example.drools.DroolsApplicationTests]: DroolsApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+00:20:59.671 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.example.drools.DroolsApplication for test class com.example.drools.DroolsApplicationTests
 
   .   ____          _            __ _ _
  /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
@@ -35,8 +35,8 @@
  =========|_|==============|___/=/_/_/_/
  :: Spring Boot ::                (v3.2.1)
 
-2026-01-15T00:17:53.094-05:00  INFO 86545 --- [           main] c.example.drools.DroolsApplicationTests  : Starting DroolsApplicationTests using Java 21.0.4 with PID 86545 (started by pkshrestha in /Users/pkshrestha/git/drools-simple-decisiont-table)
-2026-01-15T00:17:53.096-05:00  INFO 86545 --- [           main] c.example.drools.DroolsApplicationTests  : No active profile set, falling back to 1 default profile: "default"
+2026-01-15T00:21:00.260-05:00  INFO 87617 --- [           main] c.example.drools.DroolsApplicationTests  : Starting DroolsApplicationTests using Java 21.0.4 with PID 87617 (started by pkshrestha in /Users/pkshrestha/git/drools-simple-decisiont-table)
+2026-01-15T00:21:00.262-05:00  INFO 87617 --- [           main] c.example.drools.DroolsApplicationTests  : No active profile set, falling back to 1 default profile: "default"
 Loading rule file: clinical-rules.csv
 
 === GENERATED DRL START (clinical-rules.csv) ===
@@ -147,7 +147,7 @@ rule "Adjudication_39"
 	when
 		p:Person(age < 18)
 		c:Claim(type == "Dental")
-		c:Claim(amount > 1500)
+		eval(c.getAmount() > 1500)
 		a:Audit(eval(true))
 	then
 		a.addAudit("Adjudication: REVIEW REQUIRED: High-cost Minor Dental");
@@ -158,7 +158,7 @@ rule "Adjudication_40"
 	when
 		p:Person(age > 65)
 		c:Claim(type == "Medical")
-		c:Claim(amount <= 10000)
+		eval(c.getAmount() <= 10000)
 		a:Audit(eval(true))
 	then
 		a.addAudit("Adjudication: APPROVED: Senior Medical within limit");
@@ -168,13 +168,81 @@ end
 rule "Adjudication_41"
 	when
 		c:Claim(type == "Vision")
-		c:Claim(amount > 2000)
+		eval(c.getAmount() > 2000)
 		a:Audit(eval(true))
 	then
 		a.addAudit("Adjudication: DENIED: Vision benefit limit exceeded");
 end
 
+// rule values at A48, header at A43
+rule "AdvancedFeatures_48"
+	salience 100
+	when
+		Person(name matches "^Test.*")
+		Claim(type not in ("Medical", "Dental"))
+		a:Audit(eval(true))
+	then
+		a.addAudit("Special Case: Test user with non-clinical claim");
+		System.out.println("Audit Log: Rule fired for Test user");
+end
+
+// rule values at A49, header at A43
+rule "AdvancedFeatures_49"
+	salience 10
+	when
+		Person(name matches "John.*")
+		Claim(type not in ("Vision"))
+		a:Audit(eval(true))
+	then
+		a.addAudit("Special Case: John with important claim");
+		System.out.println("Audit Log: Rule fired for John");
+end
+
+// rule values at A56, header at A51
+rule "ExclusionLogic_56"
+	when
+		Person(eval(true) == "true")
+		not Claim(amount > 10000)
+		a:Audit(eval(true))
+	then
+		a.addAudit("Status: Low Risk Portfolio (No claims > 10k)");
+end
+
+// rule values at A57, header at A51
+rule "ExclusionLogic_57"
+	when
+		Person(eval(true) == "true")
+		not Claim(amount > 500)
+		a:Audit(eval(true))
+	then
+		a.addAudit("Status: Very Low Activity (No claims > 500)");
+end
+
 
 === GENERATED DRL END ===
 
-2026-01-15T00:17:54.350-05:00  WARN 86545 --- [           main] o.d.c.kie.builder.impl.KieBuilderImpl    : File 'rules/clinical-rules.csv' is in folder 'rules' but declares package 'com.example.drools.rules'. It is advised to have a correspondance between package and folder names.
+2026-01-15T00:21:02.231-05:00  WARN 87617 --- [           main] o.d.c.kie.builder.impl.KieBuilderImpl    : File 'rules/clinical-rules.csv' is in folder 'rules' but declares package 'com.example.drools.rules'. It is advised to have a correspondance between package and folder names.
+2026-01-15T00:21:05.386-05:00  INFO 87617 --- [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-01-15T00:21:05.387-05:00  INFO 87617 --- [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-01-15T00:21:05.389-05:00  INFO 87617 --- [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-01-15T00:21:05.420-05:00  INFO 87617 --- [           main] c.example.drools.DroolsApplicationTests  : Started DroolsApplicationTests in 5.562 seconds (process running for 7.093)
+WARNING: A Java agent has been loaded dynamically (/Users/pkshrestha/.m2/repository/net/bytebuddy/byte-buddy-agent/1.14.10/byte-buddy-agent-1.14.10.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+2026-01-15T00:21:06.652-05:00  INFO 87617 --- [           main] o.d.c.kie.builder.impl.KieContainerImpl  : Start creation of KieBase: defaultKieBase
+2026-01-15T00:21:06.788-05:00  INFO 87617 --- [           main] o.d.c.kie.builder.impl.KieContainerImpl  : End creation of KieBase: defaultKieBase
+Audit Log: Rule fired for Test user
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 8.161 s -- in com.example.drools.DroolsApplicationTests
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  12.573 s
+[INFO] Finished at: 2026-01-15T00:21:07-05:00
+[INFO] ------------------------------------------------------------------------
