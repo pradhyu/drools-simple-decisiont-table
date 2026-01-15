@@ -17,38 +17,43 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class DroolsConfig {
 
-    private static final String DECISION_TABLE_FILE_PATH = "rules/clinical-rules.csv";
-
     @Bean
     public KieContainer kieContainer() {
         KieServices kieServices = KieServices.Factory.get();
         KieFileSystem kieFileSystem = kieServices.newKieFileSystem();
 
-        // Print DRL for debugging
-        try (java.io.InputStream is = getClass().getClassLoader().getResourceAsStream(DECISION_TABLE_FILE_PATH)) {
-            if (is != null) {
-                org.drools.decisiontable.SpreadsheetCompiler compiler = new org.drools.decisiontable.SpreadsheetCompiler();
-                String drl = compiler.compile(is, org.drools.decisiontable.InputType.CSV);
-                System.out.println("\n=== GENERATED DRL START (" + DECISION_TABLE_FILE_PATH + ") ===");
-                System.out.println(drl);
-                System.out.println("=== GENERATED DRL END ===\n");
-            } else {
-                System.err.println("Could not find decision table file: " + DECISION_TABLE_FILE_PATH);
-            }
-        } catch (Exception e) {
-            System.err.println("Failed to print generated DRL: " + e.getMessage());
-        }
-
-        // Load the CSV decision table
-        Resource resource = ResourceFactory.newClassPathResource(DECISION_TABLE_FILE_PATH);
-        resource.setResourceType(ResourceType.DTABLE);
+        // List of decision table files
+        String[] decisionTables = {
+                "rules/clinical-rules.csv",
+                "rules/claims-rules.csv"
+        };
 
         // Configuration for CSV
         DecisionTableConfiguration configuration = KnowledgeBuilderFactory.newDecisionTableConfiguration();
         configuration.setInputType(DecisionTableInputType.CSV);
-        resource.setConfiguration(configuration);
 
-        kieFileSystem.write(resource);
+        for (String dtPath : decisionTables) {
+            // Print DRL for debugging
+            try (java.io.InputStream is = getClass().getClassLoader().getResourceAsStream(dtPath)) {
+                if (is != null) {
+                    org.drools.decisiontable.SpreadsheetCompiler compiler = new org.drools.decisiontable.SpreadsheetCompiler();
+                    String drl = compiler.compile(is, org.drools.decisiontable.InputType.CSV);
+                    System.out.println("\n=== GENERATED DRL START (" + dtPath + ") ===");
+                    System.out.println(drl);
+                    System.out.println("=== GENERATED DRL END ===\n");
+                } else {
+                    System.err.println("Could not find decision table file: " + dtPath);
+                }
+            } catch (Exception e) {
+                System.err.println("Failed to print generated DRL for " + dtPath + ": " + e.getMessage());
+            }
+
+            // Load the CSV decision table
+            Resource resource = ResourceFactory.newClassPathResource(dtPath);
+            resource.setResourceType(ResourceType.DTABLE);
+            resource.setConfiguration(configuration);
+            kieFileSystem.write(resource);
+        }
 
         KieBuilder kieBuilder = kieServices.newKieBuilder(kieFileSystem);
         kieBuilder.buildAll();

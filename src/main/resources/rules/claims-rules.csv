@@ -1,0 +1,12 @@
+"RuleSet","com.example.drools.rules"
+"Import","com.example.drools.model.Claim"
+"Import","com.example.drools.model.Audit"
+
+"RuleTable ClaimsCheck"
+"CONDITION","CONDITION","CONDITION","ACTION"
+"Claim","Claim","a:Audit",""
+"type == ""$param""","amount > $param","eval($param)","a.addAudit(""$param"");"
+"Type Check","Amount Check","Audit Binding","Log Audit"
+"Dental","1000","true","High Value Dental Claim"
+"Vision","500","true","High Value Vision Claim"
+"Medical","5000","true","High Value Medical Claim"

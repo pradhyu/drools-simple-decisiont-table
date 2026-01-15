@@ -21,7 +21,7 @@ public class RulesController {
     }
 
     @PostMapping
-    public Audit checkRules(@RequestBody Person person) {
-        return rulesService.executeRules(person);
+    public Audit checkRules(@RequestBody com.example.drools.model.EvaluationRequest request) {
+        return rulesService.executeRules(request);
     }
 }
