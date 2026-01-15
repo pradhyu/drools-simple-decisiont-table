@@ -75,6 +75,20 @@ class DroolsApplicationTests {
     }
 
     @Test
+    void testScreeningRule() {
+        // Person age 55 should trigger both Mammogram (40+) and Colonoscopy (50+)
+        // screenings
+        Person p = new Person("ElderlyPatient", 55, "Female");
+        EvaluationRequest request = new EvaluationRequest(p, Collections.emptyList());
+        Audit audit = rulesService.executeRules(request);
+
+        assertTrue(audit.getAudits().contains("Screening Recommended: Mammogram required+"),
+                "Should recommend Mammogram");
+        assertTrue(audit.getAudits().contains("Screening Recommended: Colonoscopy required+"),
+                "Should recommend Colonoscopy");
+    }
+
+    @Test
     void testRulesEndpoint() throws Exception {
         Person p = new Person("ControllerTest", 40, "Female");
         Claim c = new Claim("C003", 2000.0, "Vision"); // High Value Vision (> 500)
