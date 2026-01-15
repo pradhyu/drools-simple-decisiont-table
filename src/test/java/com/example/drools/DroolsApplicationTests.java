@@ -147,4 +147,50 @@ class DroolsApplicationTests {
                 .andExpect(jsonPath("$.audits[?(@ == 'Adult Female detected')]").exists())
                 .andExpect(jsonPath("$.audits[?(@ == 'High Value Vision Claim')]").exists());
     }
+
+    @Test
+    void testFullJsonComparison() throws Exception {
+        // Raw input JSON representing the EvaluationRequest
+        String inputJson = """
+                {
+                  "person": {
+                    "name": "TestUser",
+                    "age": 10,
+                    "gender": "Male"
+                  },
+                  "claims": [
+                    {
+                      "id": "C999",
+                      "amount": 3000.0,
+                      "type": "Vision"
+                    }
+                  ]
+                }
+                """;
+
+        // Expected output JSON representing the Audit response
+        // Note: We use non-strict comparison (false) to ignore order
+        String expectedJson = """
+                {
+                  "audits": [
+                    "Minor detected",
+                    "High Value Vision Claim",
+                    "Adjudication: DENIED: Vision benefit limit exceeded",
+                    "Status: Low Risk Portfolio (No claims > 10k)",
+                    "Special Case: Test user with non-clinical claim"
+                  ]
+                }
+                """;
+
+        String actualResponse = mockMvc.perform(post("/api/rules")
+                .contentType("application/json")
+                .content(inputJson))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        // Perform expert JSON comparison
+        org.skyscreamer.jsonassert.JSONAssert.assertEquals(expectedJson, actualResponse, false);
+    }
 }
