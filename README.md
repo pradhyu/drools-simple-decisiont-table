@@ -14,6 +14,7 @@ This project is a Spring Boot application demonstrating the use of Drools Decisi
 - **CSV Decision Table**: Rules are defined in `src/main/resources/rules/clinical-rules.csv`, making them easy to edit and manage outside of code.
 - **REST API**: Exposes an endpoint to submit Person data and receive rule execution results.
 - **Automatic DRL Generation**: The application prints the DRL code generated from the CSV decision table to the console on startup for verification and debugging.
+- **Rule Control Flow**: Advanced pattern demonstrating how rules can insert control facts to trigger or suppress other rules, implementing "stop after first match" logic. See [RULE_CONTROL_FLOW.md](RULE_CONTROL_FLOW.md) for details.
 - **Unit & Integration Tests**: Comprehensive tests covering rule logic and the REST interface.
 
 ## Getting Started

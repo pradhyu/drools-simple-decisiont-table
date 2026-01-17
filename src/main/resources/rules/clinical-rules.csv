@@ -2,6 +2,7 @@
 "Import","com.example.drools.model.Person"
 "Import","com.example.drools.model.Claim"
 "Import","com.example.drools.model.Audit"
+"Import","com.example.drools.model.RuleControl"
 
 "RuleTable ClinicalCheck"
 "CONDITION","CONDITION","CONDITION","ACTION"
@@ -55,3 +56,19 @@
 "Person exists","No High Claims","Audit Binding","Log Status"
 "true","10000","true","Low Risk Portfolio (No claims > 10k)"
 "true","500","true","Very Low Activity (No claims > 500)"
+
+"RuleTable PriorityEscalation"
+"PRIORITY","CONDITION","CONDITION","CONDITION","ACTION","ACTION"
+"","c:Claim","","a:Audit","",""
+"salience $param","amount > $param","not RuleControl(controlType == ""ESCALATION_PROCESSED"")","eval($param)","insert(new RuleControl(""ESCALATION_PROCESSED"", ""$param""));","a.addAudit(""Priority: $param"");"
+"Order","Amount Threshold","No Prior Escalation","Audit Binding","Insert Control Fact","Log Message"
+"1000","50000","true","true","Claim > 50k - CRITICAL ESCALATION - Stopping lower priority rules","CRITICAL: Claim exceeds 50k threshold"
+"500","25000","true","true","Claim > 25k - HIGH ESCALATION - Stopping lower priority rules","HIGH: Claim exceeds 25k threshold"
+"100","10000","true","true","Claim > 10k - MEDIUM ESCALATION - Stopping lower priority rules","MEDIUM: Claim exceeds 10k threshold"
+
+"RuleTable ConditionalProcessing"
+"PRIORITY","CONDITION","CONDITION","CONDITION","ACTION"
+"","RuleControl","c:Claim","a:Audit",""
+"salience $param","controlType == ""$param""","amount > $param","eval($param)","a.addAudit(""Conditional: $param"");"
+"Order","Control Type Required","Additional Condition","Audit Binding","Log Message"
+"50","ESCALATION_PROCESSED","1000","true","Special processing triggered because escalation occurred"
